@@ -16,3 +16,8 @@ Déploiement (Docker Compose + Jenkins) de la plateforme de gestion des tickets 
 
 ## Équipe
 Administrateurs systèmes et réseaux
+
+## Jenkins
+cd jenkins
+docker compose up -d --build
+Accès : http://localhost:8081
