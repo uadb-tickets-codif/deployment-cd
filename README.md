@@ -53,3 +53,9 @@ Accès : http://localhost:8081
 
 ## Équipe
 Administrateurs systèmes et réseaux
+
+## Mise à jour sans coupure
+Le port 3001 est publié par nginx (service `proxy`), le backend n'est plus exposé.
+`./deploy.sh` démarre un second réplica du backend avec le nouveau tag, attend qu'il soit `healthy`, puis retire l'ancien.
+Mesure sur `/health` : recréation simple = 6 réponses en échec (environ 5 s), `deploy.sh` = 0 échec sur 78 requêtes.
+Après un déploiement, le conteneur peut s'appeler `backend-2` ou `backend-3` jusqu'au prochain `down` / `up`.
