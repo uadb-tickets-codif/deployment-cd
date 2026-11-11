@@ -27,7 +27,7 @@ pipeline {
     //COMPOSE_PROJECT_NAME = 'uadb-services'
     BACKEND_SERVICE      = 'backend'
     FRONTEND_SERVICE     = 'frontend'
-    BACKEND_PORT         = '3000'
+    BACKEND_PORT         = '3001'
     FRONTEND_PORT        = '3000'
   }
 
@@ -72,8 +72,8 @@ pipeline {
             docker compose logs --tail=50 $SERVICE
             return 1
           }
-          check $BACKEND_SERVICE  http://localhost:$BACKEND_PORT/health
-          check $FRONTEND_SERVICE http://localhost:$FRONTEND_PORT/
+          check $BACKEND_SERVICE  http://127.0.0.1:$BACKEND_PORT/health
+          check $FRONTEND_SERVICE http://127.0.0.1:$FRONTEND_PORT/
         '''
       }
     }
