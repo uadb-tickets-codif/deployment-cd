@@ -116,7 +116,16 @@ pipeline {
       steps {
         sh '''
           export BACKEND_TAG=${BACKEND_TAG} FRONTEND_TAG=${FRONTEND_TAG}
-          docker compose up -d --build --no-deps --wait proxy
+          NEED_BUILD=no
+          if ! docker image inspect uadb-proxy:local > /dev/null 2>&1; then NEED_BUILD=yes; fi
+          if [ -n "$(git diff --name-only HEAD~1 HEAD -- nginx 2>/dev/null)" ]; then NEED_BUILD=yes; fi
+          if [ "$NEED_BUILD" = "yes" ]; then
+            echo "Construction de l'image du proxy"
+            docker compose build proxy
+          else
+            echo "Proxy inchangé : pas de reconstruction ni de redémarrage"
+          fi
+          docker compose up -d --no-deps --wait proxy
         '''
       }
     }
