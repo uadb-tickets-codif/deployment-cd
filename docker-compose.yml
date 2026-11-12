@@ -46,6 +46,7 @@ services:
         condition: service_healthy
     ports:
       - "3001:3001"
+      - "3000:3000"
     networks: [uadb-net]
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3001/health > /dev/null || exit 1"]
@@ -61,8 +62,6 @@ services:
         condition: service_healthy
     environment:
       API_URL: http://proxy:3001
-    ports:
-      - "3000:3000"
     networks: [uadb-net]
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ > /dev/null || exit 1"]
