@@ -126,21 +126,14 @@ pipeline {
         sh '''
           export BACKEND_TAG=${BACKEND_TAG} FRONTEND_TAG=${FRONTEND_TAG}
 
-          # Migration unique : l'ancien frontend publiait lui-même le port 3000
-          OLD_FE=$(docker compose ps -q frontend | head -1)
-          if [ -n "$OLD_FE" ] && docker port "$OLD_FE" 3000/tcp > /dev/null 2>&1; then
-            echo "Migration : retrait de l'ancien frontend qui publiait le port 3000"
-            docker rm -f $(docker compose ps -q frontend)
-          fi
-
-          NEED_BUILD=no
-          if ! docker image inspect uadb-proxy:local > /dev/null 2>&1; then NEED_BUILD=yes; fi
-          if [ -n "$(git diff --name-only HEAD~1 HEAD -- nginx 2>/dev/null)" ]; then NEED_BUILD=yes; fi
-          if [ "$NEED_BUILD" = "yes" ]; then
-            echo "Construction de l'image du proxy"
-            docker compose build proxy
+          HASH=$(cat nginx/Dockerfile nginx/default.conf | sha256sum | cut -c1-12)
+          if docker image inspect uadb-proxy:$HASH > /dev/null 2>&1; then
+            echo "Proxy inchangé (config $HASH) : pas de reconstruction ni de redémarrage"
+            docker tag uadb-proxy:$HASH uadb-proxy:local
           else
-            echo "Proxy inchangé : pas de reconstruction ni de redémarrage"
+            echo "Nouvelle configuration du proxy ($HASH) : construction"
+            docker compose build proxy
+            docker tag uadb-proxy:local uadb-proxy:$HASH
           fi
           docker compose up -d --no-deps --wait proxy
         '''
