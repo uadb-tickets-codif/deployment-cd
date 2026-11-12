@@ -38,15 +38,14 @@ services:
       start_period: 30s
 
   proxy:
-    image: nginx:1.27-alpine
+    build: ./nginx
+    image: uadb-proxy:local
     restart: unless-stopped
     depends_on:
       backend:
         condition: service_healthy
     ports:
       - "3001:3001"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     networks: [uadb-net]
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3001/health > /dev/null || exit 1"]
